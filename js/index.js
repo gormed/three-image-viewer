@@ -29,6 +29,8 @@ function WebGLImageViewer(config, images) {
 	}
 	var imagesArray = images;
 	var currentIndex = 0;
+	var mouseDown = false;
+	var touchDown = false;
 	var nextImageIndex = function () {
 		var nextIdx = currentIndex % imagesArray.length;
 		currentIndex += 1;
@@ -65,7 +67,6 @@ function WebGLImageViewer(config, images) {
 		var _cx = 0;
 
 		// desktop
-		var mouseDown = false;
 		document.body.style.cursor = 'pointer';
 
 		window.addEventListener('mousedown', function (e) {
@@ -90,11 +91,13 @@ function WebGLImageViewer(config, images) {
 		});
 		// mobile
 		window.addEventListener('touchstart', function (e) {
+			touchDown = true;
 			_cx = e.touches[0].clientX;
 			stop();
 			e.preventDefault();
 		});
 		window.addEventListener('touchend', function (e) {
+			touchDown = false;
 			resume();
 			e.preventDefault();
 		});
@@ -143,6 +146,9 @@ function WebGLImageViewer(config, images) {
 			{loader: l2, slide: slide2}
 		];
 		var loadNextImage = function () {
+			if (touchDown || mouseDown) {
+				return;
+			}
 			var buffer = buffers[lastBuffer];
 			lastBuffer = (lastBuffer + 1) % 2;
 			var nextImage = buffer.loader.load(imagesArray[nextImageIndex()]);
